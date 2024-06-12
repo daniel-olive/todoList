@@ -19,7 +19,6 @@ export const SignIn = () => {
             navigate("/home");
         }
     }, [user, navigate]);
-    console.log("Build v05.06.24");
 
     return (
         <div className="flex min-h-full flex-1 flex-col bg-gray-900 justify-center px-6 py-12 lg:px-8">
