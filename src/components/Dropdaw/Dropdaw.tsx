@@ -5,25 +5,35 @@ import {
     MenuItems,
     Transition,
 } from "@headlessui/react";
-import { Cog6ToothIcon } from "@heroicons/react/20/solid";
+import { useAuth } from "../../Contexts/useAuth";
 
 type Props = {
-    logoutGoogle: () => void
-}
+    logoutGoogle: () => void;
+};
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(" ");
 }
 
 export const Dropdaw = ({ logoutGoogle }: Props) => {
+    const { user } = useAuth();
+    const handleMenu = () => {
+        return <Dropdaw logoutGoogle={logoutGoogle} />;
+    };
     return (
         <Menu as="div" className="relative inline-block text-left border-0">
             <div>
                 <MenuButton>
-                    <Cog6ToothIcon
-                        className="mr-2 h-5 w-5 text-white"
-                        aria-hidden="true"
-                    />
+                    <div className="rounded-full border-2 border-white mx-2">
+                        {user && (
+                            <img
+                                src={user.photoURL}
+                                className="border-2 border-gray-900 rounded-full h-9 w-9"
+                                alt=""
+                                onClick={handleMenu}
+                            />
+                        )}
+                    </div>
                 </MenuButton>
             </div>
 

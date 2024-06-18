@@ -9,6 +9,7 @@ type Props = {
 
 export const Header = ({ title }: Props) => {
     const { logout, user } = useAuth();
+    const mobile = window.screen.width < 400;
     const navigate = useNavigate();
 
     function logoutGoogle() {
@@ -20,7 +21,6 @@ export const Header = ({ title }: Props) => {
             navigate("/");
         }
     }, [user, navigate]);
-
     return (
         <div className="flex w-full justify-center items-center bg-black h-20">
             <div className="flex flex-1"></div>
@@ -32,19 +32,12 @@ export const Header = ({ title }: Props) => {
                     <>
                         <div className="text-white text-base ml-2">
                             {user ? (
-                                <div className="text-white font-medium">
-                                    {user.displayName}
+                                <div className="text-sm text-white font-medium">
+                                    {mobile ? "" : user.displayName}
                                 </div>
                             ) : (
                                 ""
                             )}
-                        </div>
-                        <div className="rounded-full border-2 border-white mx-2">
-                            <img
-                                className="border-2 border-gray-900 rounded-full h-9"
-                                src={user.photoURL}
-                                alt=""
-                            />
                         </div>
                     </>
                 )}

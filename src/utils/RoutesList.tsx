@@ -4,6 +4,7 @@ import { SignUp } from "../components/SignUp/SignUp";
 import { SignIn } from "../components/SignIn/SignIn";
 import { ProtectedLayout } from "../components/ProtectedLayout/ProtectedLayout";
 import { UserProvider } from "../Contexts/ContextUsers";
+import { Notfound } from "../Pages/Notfound/Notfound";
 
 export const RoutesList = () => {
     return (
@@ -13,6 +14,7 @@ export const RoutesList = () => {
                     <Route path="/home" element={ <ProtectedLayout><Card /></ProtectedLayout> }/>
                     <Route path="/" element={<SignIn />} />
                     <Route path="/signup" element={<SignUp />} />
+                    <Route path="*" element={<Notfound />} />
                 </Routes>
             </BrowserRouter>
         </UserProvider>
