@@ -32,6 +32,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             setUser(user);
             sessionStorage.setItem("@AuthFirebase:token", token);
             sessionStorage.setItem("@AuthFirebase:user", JSON.stringify(user));
+            console.log(user)
         } catch (error) {
             console.log(error);
         }

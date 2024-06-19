@@ -1,17 +1,36 @@
 import { useContext, useEffect, useState } from "react";
 import { LuListTodo } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
-import { FaApple, FaFacebook, FaGoogle } from "react-icons/fa";
 import { userAuthContext } from "../../Contexts/ContextUsers";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../Firebase";
+import { FcGoogle } from "react-icons/fc";
 
 export const SignIn = () => {
     const [email, setEmail] = useState<any>("");
     const [password, setPassword] = useState<any>("");
-    const { signInGoogle, user } = useContext(userAuthContext);
+    const { signInGoogle, user, setUser } = useContext(userAuthContext);
     const navigate = useNavigate();
 
     const LoginGoogle = async () => {
         await signInGoogle();
+    };
+
+    const handleLoginEmailAndPassword = async (e: any) => {
+        e.preventDefault();
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                const token: any = user.uid;
+                setUser(user);
+                sessionStorage.setItem("@AuthFirebase:token", token);
+                sessionStorage.setItem(
+                    "@AuthFirebase:user",
+                    JSON.stringify(user)
+                );
+                console.log(user);
+            })
+           
     };
 
     useEffect(() => {
@@ -27,25 +46,14 @@ export const SignIn = () => {
                 <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
                     Faça login em sua conta
                 </h2>
-                <div className="flex justify-evenly">
-                    <FaGoogle
-                        onClick={LoginGoogle}
-                        color="black"
-                        size={50}
-                        className="border p-2 rounded-md bg-white hover:opacity-40 cursor-pointer mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white"
-                    />
-                    <FaApple
-                        onClick={() => {}}
-                        color="black"
-                        size={50}
-                        className="border p-2 rounded-md bg-white hover:opacity-40 cursor-pointer mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white"
-                    />
-                    <FaFacebook
-                        onClick={() => {}}
-                        color="black"
-                        size={50}
-                        className="border p-2 rounded-md bg-white hover:opacity-40 cursor-pointer mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white"
-                    />
+                <div className="flex justify-evenly" onClick={LoginGoogle}>
+                    <div className="flex justify-center w-full bg-white mt-10 cursor-pointer hover:opacity-40 rounded-md">
+                        <FcGoogle
+                            color="black"
+                            size={50}
+                            className="p-2 rounded-md text-center text-2xl font-bold leading-9 tracking-tight text-white"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -105,6 +113,7 @@ export const SignIn = () => {
 
                     <div>
                         <button
+                            onClick={handleLoginEmailAndPassword}
                             type="submit"
                             className="flex w-full justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
                         >

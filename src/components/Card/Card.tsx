@@ -7,12 +7,14 @@ import {
     doc,
     updateDoc,
     deleteDoc,
+    where,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { Header } from "../Header/Header";
 import { Container } from "../Container/Container";
 import { Footer } from "../Footer/Footer";
+import { query } from "firebase/firestore";
 
 type Itens = { id: string; nome: string; checked: boolean };
 
@@ -24,12 +26,22 @@ export const Card = () => {
     const [errorInput, setErrorInput] = useState(false);
     const [errorInputEdit, setErrorInputEdit] = useState(false);
     const [editItemId, setEditItemId] = useState<string | null>(null);
-    const sessionToken = sessionStorage.getItem("@AuthFirebase:token");
+    const sessionToken: any = sessionStorage.getItem("@AuthFirebase:token");
+    const sessionUser: any = sessionStorage.getItem("@AuthFirebase:user");
+
+    const user = JSON.parse(sessionUser);
+    const uid: string = user.uid;
+
+    console.log(uid);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, "todolist"));
+                const q = query(
+                    collection(db, "todolist"),
+                    where("user_id", "==", uid)
+                );
+                const querySnapshot = await getDocs(q);
                 const todoList = querySnapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
@@ -49,15 +61,18 @@ export const Card = () => {
                 try {
                     const docRef = await addDoc(collection(db, "todolist"), {
                         nome: input,
+                        user_id: uid,
                     });
                     console.log("Documento escrito com ID: ", docRef.id);
                 } catch (e) {
                     console.error("Erro adicionando documento: ", e);
                 }
                 try {
-                    const querySnapshot = await getDocs(
-                        collection(db, "todolist")
+                    const q = query(
+                        collection(db, "todolist"),
+                        where("user_id", "==", uid)
                     );
+                    const querySnapshot = await getDocs(q);
                     const todoList = querySnapshot.docs.map((doc) => ({
                         id: doc.id,
                         ...doc.data(),
@@ -119,8 +134,10 @@ export const Card = () => {
                     "A requisição falhou, por favor tente novamente mais tarde ou entre em contado com o administrador do Sistema."
                 );
             }
-        }else{
-            alert("Por favor faça login novamente em sua conta, para editar um item.");
+        } else {
+            alert(
+                "Por favor faça login novamente em sua conta, para editar um item."
+            );
         }
     };
 
