@@ -9,15 +9,26 @@ import { FcGoogle } from "react-icons/fc";
 export const SignIn = () => {
     const [email, setEmail] = useState<any>("");
     const [password, setPassword] = useState<any>("");
-    const { signInGoogle, user, setUser } = useContext(userAuthContext);
+    const [msgEmail, setMsgEmail] = useState("");
+    const [msgPassword, setMsgPassword] = useState("");
+    const [msgemailVerified, setMsgemailVerified] = useState(false);
+    const [passwordValid, setPasswordValid] = useState(false);
+    const { signInGoogle, user, setUser, logout } = useContext(userAuthContext);
     const navigate = useNavigate();
 
     const LoginGoogle = async () => {
         await signInGoogle();
     };
-
     const handleLoginEmailAndPassword = async (e: any) => {
         e.preventDefault();
+        if (email.trim() === "") {
+            setMsgEmail("Prencha o campo email!");
+            return false;
+        }
+        if (password.trim() === "") {
+            setMsgPassword("Prencha o campo senha!");
+            return false;
+        }
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
@@ -28,9 +39,18 @@ export const SignIn = () => {
                     "@AuthFirebase:user",
                     JSON.stringify(user)
                 );
-                console.log(user);
+                if (!user.emailVerified) {
+                    logout();
+                    setMsgemailVerified(true);
+                }
             })
-           
+            .catch((error) => {
+                const errorCode = error.code;
+                if (errorCode == "auth/invalid-credential") {
+                    setPasswordValid(true);
+                    return false;
+                }
+            });
     };
 
     useEffect(() => {
@@ -58,6 +78,17 @@ export const SignIn = () => {
             </div>
 
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                {passwordValid && (
+                    <span className="flex text-xs text-center mb-4 text-red-500">
+                        E-mail ou Senha incorreto. Tente novamente ou clique em
+                        'Esqueceu a senha?' para escolher outra.
+                    </span>
+                )}
+                {msgemailVerified && (
+                    <span className="flex text-xs text-center mb-4 text-red-500">
+                        Por favor, verifique seu email antes de fazer login.
+                    </span>
+                )}
                 <form className="space-y-6">
                     <div>
                         <label
@@ -77,6 +108,11 @@ export const SignIn = () => {
                                 required
                                 className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                             />
+                            {email == "" && (
+                                <span className="text-xs text-red-500">
+                                    {msgEmail}
+                                </span>
+                            )}
                         </div>
                     </div>
 
@@ -89,25 +125,30 @@ export const SignIn = () => {
                                 Senha
                             </label>
                             <div className="text-sm">
-                                <a
-                                    href="#"
+                                <Link
+                                    to={"/update_password"}
                                     className="font-semibold text-white hover:text-gray-500"
                                 >
-                                    Esqueceu sua senha?
-                                </a>
+                                    Esqueceu a senha?
+                                </Link>
                             </div>
                         </div>
                         <div className="mt-2">
                             <input
                                 id="password"
                                 name="password"
-                                type="text"
+                                type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 autoComplete="current-password"
                                 required
                                 className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                             />
+                            {password == "" && (
+                                <span className="text-xs text-red-500">
+                                    {msgPassword}
+                                </span>
+                            )}
                         </div>
                     </div>
 

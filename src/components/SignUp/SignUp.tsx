@@ -1,20 +1,55 @@
 import { LuListTodo } from "react-icons/lu";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { useState } from "react";
 import { auth } from "../../Firebase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const SignUp = () => {
-    const [email, setEmail] = useState<any>("");
-    const [password, setPassword] = useState<any>("");
-    const [nome, setNome] = useState<any>("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
+
+    const [msgEmail, setMsgEmail] = useState("");
+    const [msgPassword, setMsgPassword] = useState("");
+    const [msgPasswordConfirm, SetMsgPasswordConfirm] = useState("");
+
+    const [createUserShow, setCreateUserShow] = useState(false);
+    const [errorExist, setErrorExist] = useState("");
+
+    const navigate = useNavigate();
+
+    const [igual, setIgual] = useState("");
 
     const handleSignUp = async (e: any) => {
         e.preventDefault();
+
+        if (email.trim() === "") {
+            setMsgEmail("Prencha o campo email!");
+            return false;
+        }
+        if (password.trim() === "") {
+            setMsgPassword("Prencha o campo senha!");
+            return false;
+        }
+        if (msgPasswordConfirm.trim() === "") {
+            SetMsgPasswordConfirm("Prencha o campo Confirme Senha.");
+        }
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
+            if (passwordConfirm !== password) {
+                setIgual("As senhas não coincidem!");
+            } else {
+                setIgual("");
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await sendEmailVerification(userCredential.user);
+                setCreateUserShow(true);
+                setTimeout(() => {
+                    navigate("/email_verified");
+                }, 3000);
+            }
         } catch (error) {
-            console.error("Error signing up:", error);
+            if (error) {
+                setErrorExist("Este email já está em uso. Tente outro.");
+            }
         }
     };
 
@@ -28,27 +63,17 @@ export const SignUp = () => {
             </div>
 
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                <form onSubmit={handleSignUp} className="space-y-6">
-                    <div>
-                        <label
-                            htmlFor="nome"
-                            className="block text-sm font-medium leading-6 text-white"
-                        >
-                            Seu nome
-                        </label>
-                        <div className="mt-2">
-                            <input
-                                id="nome"
-                                name="nome"
-                                type="nome"
-                                autoComplete="text"
-                                required
-                                value={nome}
-                                onChange={(e) => setNome(e.target.value)}
-                                className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                            />
-                        </div>
+                {createUserShow && (
+                    <div className="bg-green-300 p-3 rounded-md text-center border-2 border-green-800">
+                        <span className="text-green-800">
+                            Cadastrado com Sucesso.
+                        </span>
                     </div>
+                )}
+                {errorExist !== "" && (
+                    <span className="text-xs text-red-500">{errorExist}</span>
+                )}
+                <form className="space-y-6">
                     <div>
                         <label
                             htmlFor="email"
@@ -68,6 +93,11 @@ export const SignUp = () => {
                                 className="block w-full rounded-md border-0 py-1.5 text-blackshadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                             />
                         </div>
+                        {email == "" && (
+                            <span className="text-xs text-red-500">
+                                {msgEmail}
+                            </span>
+                        )}
                     </div>
 
                     <div>
@@ -85,11 +115,15 @@ export const SignUp = () => {
                                 name="password"
                                 type="password"
                                 autoComplete="current-password"
-                                required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                             />
+                            {password == "" && (
+                                <span className="text-xs text-red-500">
+                                    {msgPassword}
+                                </span>
+                            )}
                         </div>
                     </div>
                     <div>
@@ -106,15 +140,29 @@ export const SignUp = () => {
                                 id="password-confirm"
                                 name="password-confirm"
                                 type="password-confirm"
+                                value={passwordConfirm}
+                                onChange={(e) =>
+                                    setPasswordConfirm(e.target.value)
+                                }
                                 autoComplete="current-password"
-                                required
                                 className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                             />
                         </div>
+                        {passwordConfirm == "" && (
+                            <span className="text-xs text-red-500">
+                                {msgPasswordConfirm}
+                            </span>
+                        )}
+                        {passwordConfirm && (
+                            <span className="text-xs text-red-500">
+                                {igual}
+                            </span>
+                        )}
                     </div>
 
                     <div>
                         <button
+                            onClick={handleSignUp}
                             type="submit"
                             className="flex w-full justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm active:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
                         >

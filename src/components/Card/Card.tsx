@@ -32,8 +32,6 @@ export const Card = () => {
     const user = JSON.parse(sessionUser);
     const uid: string = user.uid;
 
-    console.log(uid);
-
     useEffect(() => {
         const fetchData = async () => {
             try {
