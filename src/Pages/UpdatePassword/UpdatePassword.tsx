@@ -21,8 +21,8 @@ export const UpdatePassword = () => {
             })
             .catch((error) => {
                 const errorCode = error.code;
-                const errorMessage = error.message;
-                if (error.code == "auth/too-many-requests") {
+                // const errorMessage = error.message;
+                if (errorCode == "auth/too-many-requests") {
                     setMsg("Muitas tentativas de redefinir a senha");
                 }
             });

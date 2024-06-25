@@ -1,5 +1,8 @@
 import { LuListTodo } from "react-icons/lu";
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    sendEmailVerification,
+} from "firebase/auth";
 import { useState } from "react";
 import { auth } from "../../Firebase";
 import { Link, useNavigate } from "react-router-dom";
@@ -39,7 +42,11 @@ export const SignUp = () => {
                 setIgual("As senhas não coincidem!");
             } else {
                 setIgual("");
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
                 await sendEmailVerification(userCredential.user);
                 setCreateUserShow(true);
                 setTimeout(() => {
@@ -139,7 +146,7 @@ export const SignUp = () => {
                             <input
                                 id="password-confirm"
                                 name="password-confirm"
-                                type="password-confirm"
+                                type="password"
                                 value={passwordConfirm}
                                 onChange={(e) =>
                                     setPasswordConfirm(e.target.value)
