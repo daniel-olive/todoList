@@ -1,8 +1,5 @@
 import { LuListTodo } from "react-icons/lu";
-import {
-    createUserWithEmailAndPassword,
-    sendEmailVerification,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { useState } from "react";
 import { auth } from "../../Firebase";
 import { Link, useNavigate } from "react-router-dom";
@@ -42,11 +39,7 @@ export const SignUp = () => {
                 setIgual("As senhas não coincidem!");
             } else {
                 setIgual("");
-                const userCredential = await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 await sendEmailVerification(userCredential.user);
                 setCreateUserShow(true);
                 setTimeout(() => {
@@ -64,28 +57,21 @@ export const SignUp = () => {
         <div className="flex min-h-full flex-1 flex-col bg-gray-900 justify-center px-6 py-12 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 <LuListTodo className="bg-white mx-auto h-10 w-auto" />
-                <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
-                    Crie sua conta
-                </h2>
+                <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">Crie sua conta</h2>
             </div>
 
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                 {createUserShow && (
                     <div className="bg-green-300 p-3 rounded-md text-center border-2 border-green-800">
-                        <span className="text-green-800">
-                            Cadastrado com Sucesso.
-                        </span>
+                        <span className="text-green-800">Cadastrado com Sucesso.</span>
                     </div>
                 )}
-                {errorExist !== "" && (
-                    <span className="text-xs text-red-500">{errorExist}</span>
-                )}
+                {errorExist !== "" && <span className="text-xs text-red-500">{errorExist}</span>}
                 <form className="space-y-6">
                     <div>
                         <label
                             htmlFor="email"
-                            className="block text-sm font-medium leading-6 text-white"
-                        >
+                            className="block text-sm font-medium leading-6 text-white">
                             Endereço de email
                         </label>
                         <div className="mt-2">
@@ -100,19 +86,14 @@ export const SignUp = () => {
                                 className="block w-full rounded-md border-0 py-1.5 text-blackshadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                             />
                         </div>
-                        {email == "" && (
-                            <span className="text-xs text-red-500">
-                                {msgEmail}
-                            </span>
-                        )}
+                        {email == "" && <span className="text-xs text-red-500">{msgEmail}</span>}
                     </div>
 
                     <div>
                         <div className="flex items-center justify-between">
                             <label
                                 htmlFor="password"
-                                className="block text-sm font-medium leading-6 text-white"
-                            >
+                                className="block text-sm font-medium leading-6 text-white">
                                 Senha
                             </label>
                         </div>
@@ -126,19 +107,14 @@ export const SignUp = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                             />
-                            {password == "" && (
-                                <span className="text-xs text-red-500">
-                                    {msgPassword}
-                                </span>
-                            )}
+                            {password == "" && <span className="text-xs text-red-500">{msgPassword}</span>}
                         </div>
                     </div>
                     <div>
                         <div className="flex items-center justify-between">
                             <label
                                 htmlFor="password-confirm"
-                                className="block text-sm font-medium leading-6 text-white"
-                            >
+                                className="block text-sm font-medium leading-6 text-white">
                                 Confirme Senha
                             </label>
                         </div>
@@ -148,31 +124,20 @@ export const SignUp = () => {
                                 name="password-confirm"
                                 type="password"
                                 value={passwordConfirm}
-                                onChange={(e) =>
-                                    setPasswordConfirm(e.target.value)
-                                }
+                                onChange={(e) => setPasswordConfirm(e.target.value)}
                                 autoComplete="current-password"
                                 className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                             />
                         </div>
-                        {passwordConfirm == "" && (
-                            <span className="text-xs text-red-500">
-                                {msgPasswordConfirm}
-                            </span>
-                        )}
-                        {passwordConfirm && (
-                            <span className="text-xs text-red-500">
-                                {igual}
-                            </span>
-                        )}
+                        {passwordConfirm == "" && <span className="text-xs text-red-500">{msgPasswordConfirm}</span>}
+                        {passwordConfirm && <span className="text-xs text-red-500">{igual}</span>}
                     </div>
 
                     <div>
                         <button
                             onClick={handleSignUp}
                             type="submit"
-                            className="flex w-full justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm active:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
-                        >
+                            className="flex w-full justify-center rounded-md bg-black px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm active:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">
                             Cadastrar-se
                         </button>
                     </div>
@@ -182,8 +147,7 @@ export const SignUp = () => {
                     Já tem uma conta?{" "}
                     <Link
                         to={"/"}
-                        className="font-semibold leading-6 text-white hover:text-gray-500"
-                    >
+                        className="font-semibold leading-6 text-white hover:text-gray-500">
                         Faça Login
                     </Link>
                 </p>
