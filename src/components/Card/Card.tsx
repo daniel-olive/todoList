@@ -7,6 +7,7 @@ import { Header } from "../Header/Header";
 import { Container } from "../Container/Container";
 import { Footer } from "../Footer/Footer";
 import { query } from "firebase/firestore";
+import Confetti from 'react-confetti';
 
 type Itens = { id: string; nome: string; checked: boolean };
 
@@ -16,6 +17,7 @@ export const Card = () => {
     const [inputEdit, setInputEdit] = useState<any>("");
     const [errorInput, setErrorInput] = useState(false);
     const [errorInputEdit, setErrorInputEdit] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
     const [editItemId, setEditItemId] = useState<string | null>(null);
     const sessionToken: any = sessionStorage.getItem("@AuthFirebase:token");
     const sessionUser: any = sessionStorage.getItem("@AuthFirebase:user");
@@ -140,6 +142,12 @@ export const Card = () => {
 
                 // Atualizar o estado local para refletir a mudança
                 setList(list.map((item: Itens) => (item.id === id ? { ...item, checked: updatedCompletion } : item)));
+                if(updatedCompletion){
+                    setShowConfetti(true)
+                    setTimeout(() => {
+                        setShowConfetti(false)
+                    }, 3000)
+                }
             } catch (error) {
                 console.error("Erro ao atualizar conclusão da tarefa: ", error);
             }
@@ -150,6 +158,7 @@ export const Card = () => {
 
     return (
         <>
+            { showConfetti ? <Confetti gravity={0.1} /> : ''}
             <Header title="To Do List" />
             <Container>
                 <div className="flex text-white flex-col w-11/12 lg:w-6/12 rounded-md justify-center">
