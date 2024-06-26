@@ -1,14 +1,6 @@
 import { db } from "../../Firebase";
 import "animate.css";
-import {
-    collection,
-    getDocs,
-    addDoc,
-    doc,
-    updateDoc,
-    deleteDoc,
-    where,
-} from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { Header } from "../Header/Header";
@@ -22,7 +14,6 @@ export const Card = () => {
     const [list, setList] = useState<any>([]);
     const [input, setInput] = useState<any>("");
     const [inputEdit, setInputEdit] = useState<any>("");
-    const [completedTasks, setCompletedTasks] = useState<string[]>([]);
     const [errorInput, setErrorInput] = useState(false);
     const [errorInputEdit, setErrorInputEdit] = useState(false);
     const [editItemId, setEditItemId] = useState<string | null>(null);
@@ -35,10 +26,7 @@ export const Card = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const q = query(
-                    collection(db, "todolist"),
-                    where("user_id", "==", uid)
-                );
+                const q = query(collection(db, "todolist"), where("user_id", "==", uid));
                 const querySnapshot = await getDocs(q);
                 const todoList = querySnapshot.docs.map((doc) => ({
                     id: doc.id,
@@ -66,10 +54,7 @@ export const Card = () => {
                     console.error("Erro adicionando documento: ", e);
                 }
                 try {
-                    const q = query(
-                        collection(db, "todolist"),
-                        where("user_id", "==", uid)
-                    );
+                    const q = query(collection(db, "todolist"), where("user_id", "==", uid));
                     const querySnapshot = await getDocs(q);
                     const todoList = querySnapshot.docs.map((doc) => ({
                         id: doc.id,
@@ -128,14 +113,10 @@ export const Card = () => {
                     setEditItemId(null);
                 }
             } catch (error) {
-                console.log(
-                    "A requisição falhou, por favor tente novamente mais tarde ou entre em contado com o administrador do Sistema."
-                );
+                console.log("A requisição falhou, por favor tente novamente mais tarde ou entre em contado com o administrador do Sistema.");
             }
         } else {
-            alert(
-                "Por favor faça login novamente em sua conta, para editar um item."
-            );
+            alert("Por favor faça login novamente em sua conta, para editar um item.");
         }
     };
 
@@ -148,17 +129,25 @@ export const Card = () => {
         setErrorInputEdit(e.target.value.trim() === "");
     };
 
-    const handleCheckboxChange = async (id: string) => {
-        if (completedTasks.includes(id)) {
-            const userRef = doc(db, "todolist", id);
-            await updateDoc(userRef, {
-                checked: "",
-            });
-            setCompletedTasks(completedTasks.filter((taskId) => taskId !== id));
+    const handleToggleCompletion = async (id: string) => {
+        if (sessionToken) {
+            try {
+                const userRef = doc(db, "todolist", id);
+                const currentItem = list.find((item: Itens) => item.id === id);
+                const updatedCompletion = !currentItem?.checked;
+                await updateDoc(userRef, { checked: updatedCompletion });
+                console.log(currentItem.checked);
+
+                // Atualizar o estado local para refletir a mudança
+                setList(list.map((item: Itens) => (item.id === id ? { ...item, checked: updatedCompletion } : item)));
+            } catch (error) {
+                console.error("Erro ao atualizar conclusão da tarefa: ", error);
+            }
         } else {
-            setCompletedTasks([...completedTasks, id]);
+            alert("Por favor faça login para marcar a tarefa como concluída.");
         }
     };
+
     return (
         <>
             <Header title="To Do List" />
@@ -167,84 +156,54 @@ export const Card = () => {
                     <div className="flex w-full justify-center">
                         <div className="flex w-full lg:w-96 flex-col ">
                             <input
-                                className={`flex h-9 mx-2 px-2 text-black rounded-md text-sm lg:text-base ${
-                                    errorInput ? "border-2 border-red-500" : ""
-                                }`}
+                                className={`flex h-9 mx-2 px-2 text-black rounded-md text-sm lg:text-base ${errorInput ? "border-2 border-red-500" : ""}`}
                                 type="text"
                                 placeholder="Exemplo: alimentar os peixes…"
                                 required
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                             />
-                            {errorInput ? (
-                                <p className="m-2 text-center text-xs text-red-500 rounded-sm">
-                                    "Campo obrigatorio..."
-                                </p>
-                            ) : (
-                                ""
-                            )}
+                            {errorInput ? <p className="m-2 text-center text-xs text-red-500 rounded-sm">"Campo obrigatorio..."</p> : ""}
                         </div>
                         <p
                             onClick={handleAdd}
-                            className="flex text-xs lg:text-base h-9 justify-center items-center p-2 mb-5 bg-white text-black rounded-md hover:opacity-50 cursor-pointer"
-                        >
+                            className="flex text-xs lg:text-base h-9 justify-center items-center p-2 mb-5 bg-white text-black rounded-md hover:opacity-50 cursor-pointer">
                             Adicionar
                         </p>
                     </div>
                     <div>
-                        {list.length <= 1 && (
-                            <p className="text-xs mb-2">
-                                {list.length} item na lista.
-                            </p>
-                        )}
-                        {list.length > 1 && (
-                            <p className="text-xs mb-2">
-                                {list.length} itens na lista.
-                            </p>
-                        )}
+                        {list.length <= 1 && <p className="text-xs mb-2">{list.length} item na lista.</p>}
+                        {list.length > 1 && <p className="text-xs mb-2">{list.length} itens na lista.</p>}
                         {list.map((item: Itens) => (
                             <div key={item.id}>
                                 {editItemId !== item.id && (
-                                    <div className="flex h-14 justify-between items-center border border-gray-300 rounded-md mb-2 animate__animated animate__fadeIn">
+                                    <div className={`flex h-14 justify-between items-center rounded-md mb-2 animate__animated animate__fadeIn ${item.checked ? "bg-green-300 border-2 border-green-800" : "border border-gray-300"}`}>
                                         <div className="flex items-center ml-2">
                                             <input
                                                 id={`task-${item.id}`}
                                                 type="checkbox"
-                                                checked={completedTasks.includes(
-                                                    item.id
-                                                )}
-                                                onChange={() =>
-                                                    handleCheckboxChange(
-                                                        item.id
-                                                    )
-                                                }
+                                                checked={item.checked}
+                                                onChange={() => handleToggleCompletion(item.id)}
                                             />
                                             <label
                                                 htmlFor={`task-${item.id}`}
-                                                className={`text-sm md:text-base p-2 ${
-                                                    completedTasks.includes(
-                                                        item.id
-                                                    )
-                                                        ? "line-through"
-                                                        : ""
-                                                }`}
-                                            >
+                                                className={`text-sm md:text-base p-2 ${item.checked ? "line-through text-green-900" : ""}`}>
                                                 {item.nome}
                                             </label>
                                         </div>
                                         <div className="flex">
                                             <FaEdit
                                                 size={20}
+                                                color={`${item.checked ? "black" : ""}`}
                                                 cursor={"pointer"}
                                                 onClick={() => handleEdit(item)}
                                                 className="mx-1 md:mx-2 hover:opacity-50"
                                             />
                                             <FaTrashAlt
                                                 size={20}
+                                                color={`${item.checked ? "black" : ""}`}
                                                 cursor={"pointer"}
-                                                onClick={() =>
-                                                    handleDelete(item.id)
-                                                }
+                                                onClick={() => handleDelete(item.id)}
                                                 className="mx-1 md:mx-2 hover:opacity-50"
                                             />
                                         </div>
@@ -253,13 +212,7 @@ export const Card = () => {
                                 {editItemId === item.id && (
                                     <>
                                         <div className="flex h-14 justify-between items-center border border-gray-300 rounded-md mb-2">
-                                            <div
-                                                className={`flex w-full h-full items-center bg-white p-0 rounded-md rounded-r-none ${
-                                                    errorInputEdit
-                                                        ? "border-2 border-red-500"
-                                                        : ""
-                                                }`}
-                                            >
+                                            <div className={`flex w-full h-full items-center bg-white p-0 rounded-md rounded-r-none ${errorInputEdit ? "border-2 border-red-500" : ""}`}>
                                                 <input
                                                     type="text"
                                                     className={`w-full text-black p-2 outline-none rounded-md`}
@@ -269,25 +222,17 @@ export const Card = () => {
                                                 />
                                             </div>
                                             <button
-                                                onClick={() =>
-                                                    handleEditSave(item.id)
-                                                }
-                                                className="text-white font-bold p-2 bg-sky-500 rounded-md h-9 mx-2"
-                                            >
+                                                onClick={() => handleEditSave(item.id)}
+                                                className="text-white font-bold p-2 bg-sky-500 rounded-md h-9 mx-2">
                                                 Salvar
                                             </button>
                                             <button
                                                 onClick={handleCancel}
-                                                className="text-white font-bold p-2 bg-red-500 rounded-md h-9 mr-2"
-                                            >
+                                                className="text-white font-bold p-2 bg-red-500 rounded-md h-9 mr-2">
                                                 Cancelar
                                             </button>
                                         </div>
-                                        {errorInputEdit && (
-                                            <p className="m-2 text-center text-xs text-red-500 rounded-sm">
-                                                Campo obrigatório...
-                                            </p>
-                                        )}
+                                        {errorInputEdit && <p className="m-2 text-center text-xs text-red-500 rounded-sm">Campo obrigatório...</p>}
                                     </>
                                 )}
                             </div>
