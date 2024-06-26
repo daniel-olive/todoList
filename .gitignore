@@ -25,7 +25,12 @@ dist-ssr
 
 .vercel
 .prettierrc
+<<<<<<< HEAD
 
 # Ignorar o arquivo src/Firebase.ts
 src/Firebase.ts
 
+=======
+# Ignorar o arquivo src/Firebase.ts
+src/Firebase.ts
+>>>>>>> checkBoxTaskCompleted

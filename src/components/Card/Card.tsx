@@ -14,7 +14,6 @@ export const Card = () => {
     const [list, setList] = useState<any>([]);
     const [input, setInput] = useState<any>("");
     const [inputEdit, setInputEdit] = useState<any>("");
-    const [completedTasks, setCompletedTasks] = useState<string[]>([]);
     const [errorInput, setErrorInput] = useState(false);
     const [errorInputEdit, setErrorInputEdit] = useState(false);
     const [editItemId, setEditItemId] = useState<string | null>(null);
@@ -130,17 +129,25 @@ export const Card = () => {
         setErrorInputEdit(e.target.value.trim() === "");
     };
 
-    const handleCheckboxChange = async (id: string) => {
-        if (completedTasks.includes(id)) {
-            const userRef = doc(db, "todolist", id);
-            await updateDoc(userRef, {
-                checked: "",
-            });
-            setCompletedTasks(completedTasks.filter((taskId) => taskId !== id));
+    const handleToggleCompletion = async (id: string) => {
+        if (sessionToken) {
+            try {
+                const userRef = doc(db, "todolist", id);
+                const currentItem = list.find((item: Itens) => item.id === id);
+                const updatedCompletion = !currentItem?.checked;
+                await updateDoc(userRef, { checked: updatedCompletion });
+                console.log(currentItem.checked);
+
+                // Atualizar o estado local para refletir a mudança
+                setList(list.map((item: Itens) => (item.id === id ? { ...item, checked: updatedCompletion } : item)));
+            } catch (error) {
+                console.error("Erro ao atualizar conclusão da tarefa: ", error);
+            }
         } else {
-            setCompletedTasks([...completedTasks, id]);
+            alert("Por favor faça login para marcar a tarefa como concluída.");
         }
     };
+
     return (
         <>
             <Header title="To Do List" />
@@ -170,29 +177,31 @@ export const Card = () => {
                         {list.map((item: Itens) => (
                             <div key={item.id}>
                                 {editItemId !== item.id && (
-                                    <div className="flex h-14 justify-between items-center border border-gray-300 rounded-md mb-2 animate__animated animate__fadeIn">
+                                    <div className={`flex h-14 justify-between items-center rounded-md mb-2 animate__animated animate__fadeIn ${item.checked ? "bg-green-300 border-2 border-green-800" : "border border-gray-300"}`}>
                                         <div className="flex items-center ml-2">
                                             <input
                                                 id={`task-${item.id}`}
                                                 type="checkbox"
-                                                checked={completedTasks.includes(item.id)}
-                                                onChange={() => handleCheckboxChange(item.id)}
+                                                checked={item.checked}
+                                                onChange={() => handleToggleCompletion(item.id)}
                                             />
                                             <label
                                                 htmlFor={`task-${item.id}`}
-                                                className={`text-sm md:text-base p-2 ${completedTasks.includes(item.id) ? "line-through" : ""}`}>
+                                                className={`text-sm md:text-base p-2 ${item.checked ? "line-through text-green-900" : ""}`}>
                                                 {item.nome}
                                             </label>
                                         </div>
                                         <div className="flex">
                                             <FaEdit
                                                 size={20}
+                                                color={`${item.checked ? "black" : ""}`}
                                                 cursor={"pointer"}
                                                 onClick={() => handleEdit(item)}
                                                 className="mx-1 md:mx-2 hover:opacity-50"
                                             />
                                             <FaTrashAlt
                                                 size={20}
+                                                color={`${item.checked ? "black" : ""}`}
                                                 cursor={"pointer"}
                                                 onClick={() => handleDelete(item.id)}
                                                 className="mx-1 md:mx-2 hover:opacity-50"
