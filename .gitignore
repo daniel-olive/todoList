@@ -30,3 +30,4 @@ dist-ssr
 src/Firebase.ts
 ./../apiKey.ts
 apiKey.ts
+ngrok.exe
