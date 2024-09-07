@@ -1,14 +1,22 @@
 import "animate.css";
+import "react-datepicker/dist/react-datepicker.css";
 import { db } from "../../Firebase";
-import { query, orderBy, limit } from "firebase/firestore";
+import { query, orderBy } from "firebase/firestore";
 import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt } from "react-icons/fa";
 import { Header } from "../Header/Header";
 import { Container } from "../Container/Container";
 import { Footer } from "../Footer/Footer";
 import Confetti from "react-confetti";
 import { Modal } from "../Modal/Modal";
+import { FilterOptions } from "../FilterOptions/FilterOptions";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { DatePickerDate } from "../DatePickerDate/DatePickerDate";
+import { ModalGeral } from "../ModalGeral/ModalGeral";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import { Form } from "../Form/Form";
 
 type Itens = { id: string; nome: string; descricao: string; checked: boolean };
 
@@ -24,14 +32,30 @@ export const Card = () => {
     const [editItemId, setEditItemId] = useState<string | null>(null);
     const sessionToken: any = sessionStorage.getItem("@AuthFirebase:token");
     const sessionUser: any = sessionStorage.getItem("@AuthFirebase:user");
+    const [nomeSelect, setNomeSelect] = useState(false);
+    const [nomeSelectOrder, setnomeSelectOrder] = useState("");
+    const [addTesk, setAddTesk] = useState(false);
+
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const user = JSON.parse(sessionUser);
     const uid: string = user.uid;
 
+    const data: Date = new Date(); //Aqui pego a data sem formatar.
+    const formatadaDataAtual = format(data, "yyyy-MM-dd", { locale: ptBR }); //Agora formato a data com o metodo format dp data-fns
+    const dataAtual = new Date(formatadaDataAtual);
+
+    const handleNomeSelect = () => {
+        setNomeSelect(true);
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const q = query(collection(db, "todolist"), orderBy("nome", "asc"), where("user_id", "==", uid));
+                const q = query(collection(db, "todolist"), where("user_id", "==", uid), orderBy("nome", "asc"));
+
                 const querySnapshot = await getDocs(q);
                 const todoList = querySnapshot.docs.map((doc) => ({
                     id: doc.id,
@@ -44,7 +68,54 @@ export const Card = () => {
         };
 
         fetchData();
-    }, []);
+    }, [uid]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (startDate && endDate) {
+                    setIsModalOpen(false);
+                    // Formatando as datas para "yyyy-MM-dd"
+                    const formattedStartDate = format(startDate, "yyyy-MM-dd", { locale: ptBR });
+                    const formattedEndDate = format(endDate, "yyyy-MM-dd", { locale: ptBR });
+
+                    // console.log("Data de início: " + formattedStartDate);
+                    // console.log("Data de término: " + formattedEndDate);
+
+                    // Criando novos objetos de data com base nas strings formatadas
+                    const parsedStartDate = new Date(formattedStartDate);
+                    const parsedEndDate = new Date(formattedEndDate);
+
+                    // Consultando o Firestore com base no intervalo de datas
+                    const q = query(collection(db, "todolist"), where("user_id", "==", uid), where("createdAt", ">=", parsedStartDate), where("createdAt", "<=", parsedEndDate));
+
+                    const querySnapshot = await getDocs(q);
+                    const todoList = querySnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    setList(todoList);
+                }
+                if (nomeSelect) {
+                    const q = query(collection(db, "todolist"), where("user_id", "==", uid), orderBy("nome", "asc"));
+
+                    const querySnapshot = await getDocs(q);
+                    const todoList = querySnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    setList(todoList);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar documentos: ", error);
+            }
+        };
+
+        fetchData();
+    }, [uid, startDate, endDate, nomeSelect]);
+    const handleAddTesk = () => {
+        if (!addTesk) setAddTesk(true);
+    };
 
     const handleAdd = async () => {
         if (sessionToken) {
@@ -53,6 +124,7 @@ export const Card = () => {
                     const docRef = await addDoc(collection(db, "todolist"), {
                         nome: input,
                         user_id: uid,
+                        createdAt: dataAtual,
                     });
                     // console.log("Documento escrito com ID: ", docRef.id);
                 } catch (e) {
@@ -101,7 +173,6 @@ export const Card = () => {
     };
 
     const handleEditSave = async (id: string) => {
-        console.log("Teste 1: " + id);
         if (sessionToken) {
             try {
                 if (inputEdit.length >= 1) {
@@ -170,11 +241,33 @@ export const Card = () => {
         }
     };
 
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
     return (
         <>
             {showConfetti ? <Confetti gravity={0.1} /> : ""}
             <Header title="To Do List" />
             <Container>
+                {/* Botão Flutuante de Cadastrar Tarefas */}
+                <div className="fixed bottom-6 right-6 z-30">
+                    <button
+                        type="button"
+                        className="flex items-center justify-center w-14 h-14 bg-white text-black rounded-full shadow-lg hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                        onClick={handleAddTesk}
+                    >
+                        <PlusIcon
+                            className="w-6 h-6"
+                            aria-hidden="true"
+                        />
+                    </button>
+                </div>
+                {addTesk && (<Form onAddTask={() => {}} />)}
                 <div className="flex text-white flex-col w-11/12 lg:w-6/12 rounded-md justify-center">
                     <div className="flex w-full justify-center">
                         <div className="flex w-full lg:w-96 flex-col ">
@@ -198,6 +291,23 @@ export const Card = () => {
                     <div>
                         {list.length <= 1 && <p className="text-xs mb-2">{list.length} item na lista.</p>}
                         {list.length > 1 && <p className="text-xs mb-2">{list.length} itens na lista.</p>}
+
+                        <ModalGeral
+                            isOpen={isModalOpen}
+                            onClose={handleCloseModal}
+                        >
+                            <DatePickerDate
+                                startDate={startDate}
+                                endDate={endDate}
+                                handleDateStart={(date) => setStartDate(date)}
+                                handleDateEnd={(date) => setEndDate(date)}
+                            />
+                        </ModalGeral>
+                        <FilterOptions
+                            handleNomeShow={() => handleNomeSelect()}
+                            handleDateShow={handleOpenModal}
+                            handleTagShow={() => {}}
+                        />
                         {list.map((item: Itens) => (
                             <div key={item.id}>
                                 {editItemId !== item.id && (
@@ -218,7 +328,7 @@ export const Card = () => {
                                                 htmlFor={`task-${item.id}`}
                                                 className={`text-sm md:text-base p-2 ${item.checked ? "line-through text-green-900" : ""}`}
                                             >
-                                                {item.nome}
+                                                {`${item.nome.charAt(0).toUpperCase()}${item.nome.slice(1)}`}
                                             </label>
                                         </div>
                                         <div className="flex">

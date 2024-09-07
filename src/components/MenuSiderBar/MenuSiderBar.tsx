@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, TransitionChild } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../Contexts/useAuth";
 
 export function MenuSiderBar() {
@@ -22,20 +22,21 @@ export function MenuSiderBar() {
 
                 <div className="fixed inset-0 overflow-hidden">
                     <div className="absolute inset-0 overflow-hidden">
-                        <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                        <div className="pointer-events-none fixed inset-y-0 left-0 flex max-w-full">
                             <DialogPanel
                                 transition
-                                className="pointer-events-auto relative w-screen max-w-md transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+                                className="pointer-events-auto relative w-screen max-w-md transform transition duration-500 ease-in-out data-[closed]:-translate-x-full sm:duration-700"
                             >
                                 <TransitionChild
                                     enter="transform transition duration-500 ease-in-out"
-                                    enterFrom="translate-x-full opacity-0"
+                                    enterFrom="-translate-x-full opacity-0"
                                     enterTo="translate-x-0 opacity-100"
                                     leave="transform transition duration-500 ease-in-out"
                                     leaveFrom="translate-x-0 opacity-100"
-                                    leaveTo="translate-x-full opacity-0"
+                                    leaveTo="-translate-x-full opacity-0"
                                 >
-                                    <div className="absolute left-0 top-0 flex items-center -ml-8 pr-2 pt-4 sm:-ml-10 sm:pr-4">
+                                    {/* Botão de Fechar SiderBar */}
+                                    <div className="absolute right-0 top-0 flex items-center -mr-12 pr-2 pt-4 sm:-mr-10 sm:pr-4">
                                         <button
                                             type="button"
                                             onClick={() => setOpen(false)}
@@ -82,7 +83,8 @@ export function MenuSiderBar() {
                 </div>
             </Dialog>
 
-            <div className="fixed right-0 top-0 m-4 hover:bg-neutral-900">
+            {/* Menu SiberBar */}
+            <div className="fixed left-0 top-0 m-4 hover:bg-neutral-900">
                 <button
                     type="button"
                     onClick={() => setOpen(true)}

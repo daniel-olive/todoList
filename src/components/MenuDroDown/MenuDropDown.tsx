@@ -5,7 +5,6 @@ type Props = {
     logoutGoogle: () => void;
 };
 
-
 export const MenuDropDown = ({ logoutGoogle }: Props) => {
     return (
         <Menu>
@@ -29,7 +28,7 @@ export const MenuDropDown = ({ logoutGoogle }: Props) => {
             <MenuItems
                 transition
                 anchor="bottom start"
-                className="ml-2 -mt-12 w-36 origin-top-right rounded-xl border border-white/5 bg-white p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
+                className="-ml-8 w-36 origin-top-right rounded-xl border border-white/5 bg-white p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
             >
                 <MenuItem>
                     <button className="group text-black flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-gray-500/10">
