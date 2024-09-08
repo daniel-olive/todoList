@@ -24,7 +24,7 @@ export const Form: React.FC<TaskInputProps> = ({ onAddTask }) => {
 
     return (
         <>
-            <Container>
+            <Container ColorBackground="bg-white" >
                 <div className="flex w-full justify-center">
                     <div className="flex mx-4 w-full lg:w-96 flex-col  items-center">
                         <input
@@ -65,15 +65,9 @@ export const Form: React.FC<TaskInputProps> = ({ onAddTask }) => {
                 <div className="flex mt-8 w-full justify-center">
                     <p
                         onClick={handleAdd}
-                        className="flex text-xs lg:text-base h-9 justify-center items-center p-2 mx-2 mb-5 bg-white text-black rounded-md hover:opacity-50 cursor-pointer"
+                        className="flex text-xs lg:text-base h-9 justify-center items-center p-2 mx-2 mb-5 bg-black text-white rounded-md hover:opacity-50 cursor-pointer"
                     >
                         Criar tarefa
-                    </p>
-                    <p
-                        onClick={handleAdd}
-                        className="flex text-xs lg:text-base h-9 justify-center items-center p-2 mb-5 bg-white text-black rounded-md hover:opacity-50 cursor-pointer"
-                    >
-                        Cancelar
                     </p>
                 </div>
             </Container>

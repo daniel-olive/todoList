@@ -4,13 +4,14 @@ interface ModalGeralProps {
     isOpen: boolean;
     onClose: () => void;
     children: ReactNode;
+    title: string;
 }
 
-export const ModalGeral = ({ isOpen, onClose, children }: ModalGeralProps) => {
+export const ModalGeral = ({ isOpen, onClose, children, title }: ModalGeralProps) => {
     return (
         <div
             id="hs-scale-animation-modal"
-            className={`fixed inset-0 z-50 bg-gray-900 bg-opacity-95 overflow-y-auto ${isOpen ? "" : "hidden"}`}
+            className={`fixed justify-center items-center flex inset-0 z-50 bg-gray-900 bg-opacity-95 overflow-y-auto ${isOpen ? "" : "hidden"}`}
             role="dialog"
             tabIndex={-1}
             aria-labelledby="hs-scale-animation-modal-label"
@@ -22,7 +23,7 @@ export const ModalGeral = ({ isOpen, onClose, children }: ModalGeralProps) => {
                             id="hs-scale-animation-modal-label"
                             className="font-bold text-gray-800"
                         >
-                            Filtrar por datas
+                            {title}
                         </h3>
                         <button
                             type="button"

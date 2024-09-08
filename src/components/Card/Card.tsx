@@ -253,7 +253,10 @@ export const Card = () => {
         <>
             {showConfetti ? <Confetti gravity={0.1} /> : ""}
             <Header title="To Do List" />
-            <Container>
+            <Container
+                ColorBackground="bg-gray-900"
+                windowSize={`${list.length <= 1 ? "min-h-screen" : ""}`}
+            >
                 {/* Botão Flutuante de Cadastrar Tarefas */}
                 <div className="fixed bottom-6 right-6 z-30">
                     <button
@@ -267,7 +270,15 @@ export const Card = () => {
                         />
                     </button>
                 </div>
-                {addTesk && (<Form onAddTask={() => {}} />)}
+                {addTesk && (
+                    <ModalGeral
+                        title="Crie um nova tarefa"
+                        isOpen
+                        onClose={() => setAddTesk(false)}
+                    >
+                        <Form onAddTask={() => {}} />
+                    </ModalGeral>
+                )}
                 <div className="flex text-white flex-col w-11/12 lg:w-6/12 rounded-md justify-center">
                     <div className="flex w-full justify-center">
                         <div className="flex w-full lg:w-96 flex-col ">
@@ -295,6 +306,7 @@ export const Card = () => {
                         <ModalGeral
                             isOpen={isModalOpen}
                             onClose={handleCloseModal}
+                            title="Filtrar por datas"
                         >
                             <DatePickerDate
                                 startDate={startDate}
