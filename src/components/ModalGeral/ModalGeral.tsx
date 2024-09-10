@@ -4,10 +4,11 @@ interface ModalGeralProps {
     isOpen: boolean;
     onClose: () => void;
     children: ReactNode;
-    title: string;
+    title?: string;
+    textButton: string
 }
 
-export const ModalGeral = ({ isOpen, onClose, children, title }: ModalGeralProps) => {
+export const ModalGeral = ({ isOpen, onClose, children, title, textButton }: ModalGeralProps) => {
     return (
         <div
             id="hs-scale-animation-modal"
@@ -16,7 +17,7 @@ export const ModalGeral = ({ isOpen, onClose, children, title }: ModalGeralProps
             tabIndex={-1}
             aria-labelledby="hs-scale-animation-modal-label"
         >
-            <div className="flex items-center justify-center">
+            <div className="flex w-11/12 items-center justify-center">
                 <div className={`w-full flex flex-col md:max-w-xl sm:w-full bg-white border shadow-sm rounded-xl transition-opacity duration-200 ease-in-out ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"} m-3 sm:mx-auto`}>
                     <div className="flex justify-between items-center py-3 px-4 border-b">
                         <h3
@@ -58,7 +59,7 @@ export const ModalGeral = ({ isOpen, onClose, children, title }: ModalGeralProps
                             className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-black text-white hover:bg-gray-700 focus:outline-none focus:bg-gray-500"
                             onClick={onClose}
                         >
-                            Fechar
+                            {textButton}
                         </button>
                     </div>
                 </div>

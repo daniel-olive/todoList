@@ -1,10 +1,6 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import { app } from "../Firebase";
-import {
-    getAuth,
-    signInWithPopup as signInWithRedirect,
-    GoogleAuthProvider,
-} from "firebase/auth";
+import { getAuth, signInWithPopup as signInWithRedirect, GoogleAuthProvider } from "firebase/auth";
 
 export const userAuthContext = createContext<any>({});
 
@@ -32,7 +28,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             setUser(user);
             sessionStorage.setItem("@AuthFirebase:token", token);
             sessionStorage.setItem("@AuthFirebase:user", JSON.stringify(user));
-            console.log(user)
+            console.log(user);
         } catch (error) {
             console.log(error);
         }
@@ -44,11 +40,5 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
     };
 
-    return (
-        <userAuthContext.Provider
-            value={{ user, setUser, signInGoogle, logout, signed: !!user }}
-        >
-            {children}
-        </userAuthContext.Provider>
-    );
+    return <userAuthContext.Provider value={{ user, setUser, signInGoogle, logout, signed: !!user }}>{children}</userAuthContext.Provider>;
 };

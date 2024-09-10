@@ -1,30 +1,72 @@
 import React, { useState } from "react";
 import { Container } from "../Container/Container";
+import { collection, getDocs, addDoc, where, query } from "firebase/firestore";
+import { db } from "../../Firebase";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface TaskInputProps {
     onAddTask: (input: string) => void;
 }
 
-export const Form: React.FC<TaskInputProps> = ({ onAddTask }) => {
+export const FormTask: React.FC<TaskInputProps> = ({ onAddTask }) => {
     const [nome, setNome] = useState<string>("");
     const [tag, setTag] = useState<string>("");
-    const [prioridade, setPrioridade] = useState<string>("");
+    const [descricao, setDescricao] = useState<string>("");
     const [errorInput, setErrorInput] = useState(false);
+    const sessionToken: any = sessionStorage.getItem("@AuthFirebase:token");
+    const sessionUser: any = sessionStorage.getItem("@AuthFirebase:user");
+    const user = JSON.parse(sessionUser);
+    const uid: string = user.uid;
 
-    const handleAdd = () => {
-        if (nome.trim() || tag.trim() || prioridade.trim() !== "") {
-            onAddTask(nome);
+    const data: Date = new Date(); //Aqui pego a data sem formatar.
+    const formatadaDataAtual = format(data, "yyyy-MM-dd", { locale: ptBR }); //Agora formato a data com o metodo format dp data-fns
+    const dataAtual = new Date(formatadaDataAtual);
+
+    const handleAdd = async () => {
+        if (sessionToken) {
+            if (nome.trim() !== "") {
+                try {
+                    const docRef = await addDoc(collection(db, 'todolist'), {
+                        nome: nome,
+                        tag: tag,
+                        descricao: descricao,
+                        user_id: uid,
+                        createdAt: dataAtual,
+                    });
+                    // console.log("Documento escrito com ID: ", docRef.id);
+                } catch (e) {
+                    console.error("Erro adicionando documento: ", e);
+                }
+                try {
+                    const q = query(collection(db, "tags"), where("user_id", "==", uid));
+                    const querySnapshot = await getDocs(q);
+                    const todoList = querySnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    // setList(todoList);
+                } catch (error) {
+                    console.error("Erro ao buscar documentos: ", error);
+                }
+            } else {
+                setErrorInput(true);
+                setTimeout(() => {
+                    setErrorInput(false);
+                }, 10 * 1000);
+            }
         } else {
-            setErrorInput(true);
-            setTimeout(() => {
-                setErrorInput(false);
-            }, 10 * 1000);
+            alert("Você precisa estar logado para adicionar um novo item.");
         }
+        setNome("");
+        setDescricao("");
+        setTag("");
+
     };
 
     return (
         <>
-            <Container ColorBackground="bg-white" >
+            <Container ColorBackground="bg-white">
                 <div className="flex w-full justify-center">
                     <div className="flex mx-4 w-full lg:w-96 flex-col  items-center">
                         <input
@@ -50,12 +92,13 @@ export const Form: React.FC<TaskInputProps> = ({ onAddTask }) => {
                             id="descricao"
                             className="flex w-full  mx-4 max-w-lg min-h-24 h-10 mb-2 items-center text-gray-600 focus:outline-none focus:border-gray-500 font-normal pl-2 text-sm border-gray-300 rounded border"
                             placeholder="Digite um descrição"
-                            value={prioridade}
-                            onChange={(e) => setPrioridade(e.target.value)}
+                            value={descricao}
+                            onChange={(e) => setDescricao(e.target.value)}
                         />
                         {errorInput && <p className="mb-1 text-center text-xs text-red-500 rounded-sm">"Campo obrigatório..."</p>}
 
                         <select className="w-full mb-2 text-gray-600 focus:outline-none focus:border focus:border-gray-500 font-normal mx-4 max-w-lg h-10 flex items-center pl-2 text-sm border-gray-300 rounded border">
+                            <option value="Baixa">Nenhuma</option>
                             <option value="Baixa">Baixa</option>
                             <option value="Média">Média</option>
                             <option value="Alta">Alta</option>

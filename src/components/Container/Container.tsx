@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 type Props = {
     children: ReactNode;
     ColorBackground: string;
-    windowSize?: string;
+    windowSize?: string;// Aqui defino quando se aplica o min-h-screen, quando list.lenght <=1
 };
 
 export const Container = ({ children, ColorBackground, windowSize }: Props) => {

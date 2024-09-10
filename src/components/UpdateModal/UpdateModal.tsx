@@ -11,7 +11,7 @@ type Props = {
     descricao: string;
 };
 
-export const Modal = ({ nome, descricao, handleModalClose, handleEditSave, handleInputChange, handleInputChangeDesc, inputEdit, inputEditDesc }: Props) => {
+export const UpdateModal = ({ nome, descricao, handleModalClose, handleEditSave, handleInputChange, handleInputChangeDesc, inputEdit, inputEditDesc }: Props) => {
     const [editarTask, setEditarTask] = useState(false);
 
     return (

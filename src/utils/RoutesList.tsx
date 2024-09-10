@@ -7,9 +7,10 @@ import { UserProvider } from "../Contexts/ContextUsers";
 import { Notfound } from "../Pages/Notfound/Notfound";
 import { UpdatePassword } from "../Pages/UpdatePassword/UpdatePassword";
 import { EmailVerified } from "../Pages/EmailVerified/EmailVerified";
-import { Form } from "../components/Form/Form";
+import { FormTask } from "../components/FormTask/FormTask";
 
 export const RoutesList = () => {
+    
     return (
         <UserProvider>
             <BrowserRouter>
@@ -19,7 +20,7 @@ export const RoutesList = () => {
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/update_password" element={<UpdatePassword />} />
                     <Route path="/email_verified" element={<EmailVerified />} />
-                    <Route path="/form" element={<Form onAddTask={function (input: string): void {
+                    <Route path="/form" element={<FormTask onAddTask={function (input: string): void {
                         throw new Error("Function not implemented.");
                     } } />} />
                     <Route path="*" element={<Notfound />} />

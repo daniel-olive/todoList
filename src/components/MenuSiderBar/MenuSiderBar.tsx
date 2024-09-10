@@ -1,18 +1,31 @@
 import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, TransitionChild } from "@headlessui/react";
-import { XMarkIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../Contexts/useAuth";
+import { ButtonAddTask } from "../ButtonAddTask/ButtonAddTask";
+import { ModalGeral } from "../ModalGeral/ModalGeral";
+import { FormTags } from "../FormTags/FormTags";
 
 export function MenuSiderBar() {
     const [open, setOpen] = useState(false);
+    const [showModalAdd, setShowModalAdd] = useState(false);
     const { user } = useAuth();
     const menu = [{ nome: "Hoje" }, { nome: "Trabalho" }, { nome: "Pessoal" }, { nome: "Compras" }, { nome: "Estudos" }];
+
+    const closeModal = () => {
+        setShowModalAdd(false);
+    };
+
+    const closeSideBar = () => {
+        setOpen(false);
+        setShowModalAdd(false);
+    };
 
     return (
         <>
             <Dialog
                 open={open}
-                onClose={setOpen}
+                onClose={closeSideBar}
                 className="relative z-10"
             >
                 <DialogBackdrop
@@ -39,7 +52,7 @@ export function MenuSiderBar() {
                                     <div className="absolute right-0 top-0 flex items-center -mr-12 pr-2 pt-4 sm:-mr-10 sm:pr-4">
                                         <button
                                             type="button"
-                                            onClick={() => setOpen(false)}
+                                            onClick={closeSideBar}
                                             className="relative rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
                                         >
                                             <span className="sr-only">Close panel</span>
@@ -69,13 +82,29 @@ export function MenuSiderBar() {
                                     <div className="relative mt-6 flex-1 px-4 sm:px-6">
                                         {menu.map((item: any) => (
                                             <ul
-                                                key={item}
+                                                key={item.nome}
                                                 className="flex flex-col"
                                             >
                                                 <li className="p-2 cursor-pointer hover:bg-gray-200 rounded-md">{item.nome}</li>
                                             </ul>
                                         ))}
                                     </div>
+                                    {/* Botão Flutuante de Cadastrar Tarefas */}
+                                    <ButtonAddTask
+                                        bgColor="bg-black"
+                                        textColor="text-white"
+                                        handleAddTesk={() => setShowModalAdd(true)}
+                                    />
+                                    {showModalAdd && (
+                                        <ModalGeral
+                                            title="Crie uma nova Tag"
+                                            textButton="Fechar"
+                                            onClose={closeModal}
+                                            isOpen
+                                        >
+                                            <FormTags />
+                                        </ModalGeral>
+                                    )}
                                 </div>
                             </DialogPanel>
                         </div>

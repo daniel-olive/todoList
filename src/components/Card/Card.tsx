@@ -9,20 +9,20 @@ import { Header } from "../Header/Header";
 import { Container } from "../Container/Container";
 import { Footer } from "../Footer/Footer";
 import Confetti from "react-confetti";
-import { Modal } from "../Modal/Modal";
+import { UpdateModal } from "../UpdateModal/UpdateModal";
 import { FilterOptions } from "../FilterOptions/FilterOptions";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DatePickerDate } from "../DatePickerDate/DatePickerDate";
 import { ModalGeral } from "../ModalGeral/ModalGeral";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import { Form } from "../Form/Form";
+import { FormTask } from "../FormTask/FormTask";
+import { ButtonAddTask } from "../ButtonAddTask/ButtonAddTask";
 
 type Itens = { id: string; nome: string; descricao: string; checked: boolean };
 
 export const Card = () => {
     const [list, setList] = useState<any>([]);
-    const [input, setInput] = useState<any>("");
+    const [nome, setInput] = useState<any>("");
     const [inputEdit, setInputEdit] = useState<any>("");
     const [inputEditDesc, setInputEditDesc] = useState<any | undefined>("");
     const [errorInput, setErrorInput] = useState(false);
@@ -33,8 +33,10 @@ export const Card = () => {
     const sessionToken: any = sessionStorage.getItem("@AuthFirebase:token");
     const sessionUser: any = sessionStorage.getItem("@AuthFirebase:user");
     const [nomeSelect, setNomeSelect] = useState(false);
-    const [nomeSelectOrder, setnomeSelectOrder] = useState("");
+    const [tagSelect, setTagSelect] = useState(false);
     const [addTesk, setAddTesk] = useState(false);
+    const [taskIdToDelete, setTaskIdToDelete] = useState<string | null>(null);
+    const [handleDeleShowAlert, setHandleDeleShowAlert] = useState(false);
 
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
@@ -50,10 +52,14 @@ export const Card = () => {
     const handleNomeSelect = () => {
         setNomeSelect(true);
     };
+    const handleTagSelect = () => {
+        setTagSelect(true);
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // const getDocsTag = getDoc()
                 const q = query(collection(db, "todolist"), where("user_id", "==", uid), orderBy("nome", "asc"));
 
                 const querySnapshot = await getDocs(q);
@@ -106,23 +112,33 @@ export const Card = () => {
                     }));
                     setList(todoList);
                 }
+                if (tagSelect) {
+                    const q = query(collection(db, "todolist"), where("user_id", "==", uid), orderBy("tag"));
+
+                    const querySnapshot = await getDocs(q);
+                    const todoList = querySnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    setList(todoList);
+                }
             } catch (error) {
                 console.error("Erro ao buscar documentos: ", error);
             }
         };
 
         fetchData();
-    }, [uid, startDate, endDate, nomeSelect]);
+    }, [uid, startDate, endDate, nomeSelect, tagSelect]);
     const handleAddTesk = () => {
         if (!addTesk) setAddTesk(true);
     };
 
     const handleAdd = async () => {
         if (sessionToken) {
-            if (input.trim() !== "") {
+            if (nome.trim() !== "") {
                 try {
-                    const docRef = await addDoc(collection(db, "todolist"), {
-                        nome: input,
+                    await addDoc(collection(db, "todolist"), {
+                        nome: nome,
                         user_id: uid,
                         createdAt: dataAtual,
                     });
@@ -153,16 +169,42 @@ export const Card = () => {
         setInput("");
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = (id: string) => {
+        setTaskIdToDelete(id);
+        setHandleDeleShowAlert(true);
+    };
+
+    const deleteTask = async (id: string) => {
         if (sessionToken) {
             const userRef = doc(db, "todolist", id);
             await deleteDoc(userRef);
             setList(list.filter((item: Itens) => item.id !== id));
+            setHandleDeleShowAlert(false);
         }
         if (!sessionToken) {
             alert("Por favor faça login novamente em sua conta.");
         }
     };
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Enter" && handleDeleShowAlert) {
+                // Se o modal estiver aberto e a tecla Enter for pressionada
+                deleteTask(taskIdToDelete!);
+            } else if (event.key === "Escape" && handleDeleShowAlert) {
+                // Fechar o modal ao pressionar "Esc"
+                setHandleDeleShowAlert(false);
+            }
+        };
+
+        // Adiciona o event listener
+        document.addEventListener("keydown", handleKeyDown);
+
+        // Remove o event listener ao desmontar o componente ou fechar o modal
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [handleDeleShowAlert, taskIdToDelete]);
 
     const handleEdit = (item: any) => {
         if (item.id) {
@@ -255,28 +297,22 @@ export const Card = () => {
             <Header title="To Do List" />
             <Container
                 ColorBackground="bg-gray-900"
-                windowSize={`${list.length <= 1 ? "min-h-screen" : ""}`}
+                windowSize={`${"min-h-screen"}`}
             >
+                <ButtonAddTask
+                    bgColor="bg-white"
+                    textColor="text-black"
+                    handleAddTesk={handleAddTesk}
+                />{" "}
                 {/* Botão Flutuante de Cadastrar Tarefas */}
-                <div className="fixed bottom-6 right-6 z-30">
-                    <button
-                        type="button"
-                        className="flex items-center justify-center w-14 h-14 bg-white text-black rounded-full shadow-lg hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                        onClick={handleAddTesk}
-                    >
-                        <PlusIcon
-                            className="w-6 h-6"
-                            aria-hidden="true"
-                        />
-                    </button>
-                </div>
                 {addTesk && (
                     <ModalGeral
                         title="Crie um nova tarefa"
+                        textButton="Fechar"
                         isOpen
                         onClose={() => setAddTesk(false)}
                     >
-                        <Form onAddTask={() => {}} />
+                        <FormTask onAddTask={handleAdd} />
                     </ModalGeral>
                 )}
                 <div className="flex text-white flex-col w-11/12 lg:w-6/12 rounded-md justify-center">
@@ -287,7 +323,7 @@ export const Card = () => {
                                 type="text"
                                 placeholder="Exemplo: alimentar os peixes…"
                                 required
-                                value={input}
+                                value={nome}
                                 onChange={(e) => setInput(e.target.value)}
                             />
                             {errorInput ? <p className="m-2 text-center text-xs text-red-500 rounded-sm">"Campo obrigatorio..."</p> : ""}
@@ -307,6 +343,7 @@ export const Card = () => {
                             isOpen={isModalOpen}
                             onClose={handleCloseModal}
                             title="Filtrar por datas"
+                            textButton="Fechar"
                         >
                             <DatePickerDate
                                 startDate={startDate}
@@ -318,7 +355,7 @@ export const Card = () => {
                         <FilterOptions
                             handleNomeShow={() => handleNomeSelect()}
                             handleDateShow={handleOpenModal}
-                            handleTagShow={() => {}}
+                            handleTagShow={() => handleTagSelect()}
                         />
                         {list.map((item: Itens) => (
                             <div key={item.id}>
@@ -348,15 +385,39 @@ export const Card = () => {
                                                 size={20}
                                                 color={`${item.checked ? "black" : ""}`}
                                                 cursor={"pointer"}
-                                                onClick={() => handleDelete(item.id)}
                                                 className="mx-1 md:mx-2 hover:opacity-50"
+                                                onClick={() => handleDelete(item.id)}
                                             />
+                                            {handleDeleShowAlert && (
+                                                <ModalGeral
+                                                    textButton="Cancelar"
+                                                    isOpen
+                                                    onClose={() => setHandleDeleShowAlert(false)}
+                                                >
+                                                    <div className="flex flex-col justify-center items-center">
+                                                        <p className="text-base text-black mb-4">Deseja mesmo excluir essa tarefa?</p>
+                                                        <span className="text-xs text-gray-500 mb-8">Essa ação não podera ser desfeita!</span>
+                                                        <button
+                                                            onClick={() => deleteTask(taskIdToDelete!)}
+                                                            className="w-full justify-center py-2 px-3 inline-flex items-center gap-x-1 text-sm font-medium rounded-lg border border-transparent bg-red-500 text-white hover:bg-red-700 focus:outline-none focus:bg-red-700"
+                                                        >
+                                                            <FaTrashAlt
+                                                                size={13}
+                                                                color={`${item.checked ? "black" : ""}`}
+                                                                cursor={"pointer"}
+                                                                className="hover:opacity-50"
+                                                            />
+                                                            Deletar
+                                                        </button>
+                                                    </div>
+                                                </ModalGeral>
+                                            )}
                                         </div>
                                     </div>
                                 )}
                                 {editItemId === item.id && (
                                     <>
-                                        <Modal
+                                        <UpdateModal
                                             nome={item.nome}
                                             descricao={item.descricao}
                                             handleModalClose={handleCancel}

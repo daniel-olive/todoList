@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 type Props = {
     handleNomeShow: () => void;
     handleDateShow: () => void;
@@ -12,28 +10,26 @@ export const FilterOptions = ({ handleNomeShow, handleDateShow, handleTagShow }:
             <p className="text-xs px-2 py-0.5 my-1">Ordenar por:</p>
 
             <button
-                className="w-20 bg-white text-black border text-xs font-semibold hover:opacity-70 px-4 py-0.5 my-1 rounded-sm"
+                className="w-20 bg-white text-black border text-xs font-semibold hover:opacity-70 px-4 py-0.5 ml-1 rounded-sm"
                 onClick={handleNomeShow}
             >
                 Nome
             </button>
 
             <button
-                className="w-20 bg-white text-black border text-xs font-semibold hover:opacity-70 px-4 py-0.5 m-1 rounded-sm"
+                className="w-20 bg-white text-black border text-xs font-semibold hover:opacity-70 px-4 py-0.5 ml-1 rounded-sm"
                 onClick={handleDateShow}
             >
                 Data
             </button>
 
             <button
-                className="w-20 bg-white text-black border text-xs font-semibold hover:opacity-70 px-4 py-0.5 m-1 rounded-sm"
+                className="w-20 bg-white text-black border text-xs font-semibold hover:opacity-70 px-4 py-0.5 ml-1 rounded-sm"
                 onClick={handleTagShow}
             >
                 Tag
             </button>
-            <Link to={"/form"}>
-                <button className="w-20 bg-white text-black border text-xs font-semibold hover:opacity-70 px-4 py-0.5 m-1 rounded-sm">Form</button>
-            </Link>
+            <button className="w-auto bg-white text-black border text-xs font-semibold hover:opacity-70 px-4 py-0.5 ml-1 rounded-sm">Prioridade</button>
         </div>
     );
 };
