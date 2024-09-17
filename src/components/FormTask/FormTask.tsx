@@ -9,7 +9,7 @@ interface TaskInputProps {
     onAddTask: (input: string) => void;
 }
 
-export const FormTask: React.FC<TaskInputProps> = ({ onAddTask }) => {
+export const FormTask: React.FC<TaskInputProps> = () => {
     const [nome, setNome] = useState<string>("");
     const [tag, setTag] = useState<string>("");
     const [descricao, setDescricao] = useState<string>("");
@@ -27,7 +27,7 @@ export const FormTask: React.FC<TaskInputProps> = ({ onAddTask }) => {
         if (sessionToken) {
             if (nome.trim() !== "") {
                 try {
-                    const docRef = await addDoc(collection(db, 'todolist'), {
+                    await addDoc(collection(db, 'todolist'), {
                         nome: nome,
                         tag: tag,
                         descricao: descricao,

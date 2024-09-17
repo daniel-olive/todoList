@@ -5,6 +5,7 @@ import { useAuth } from "../../Contexts/useAuth";
 import { ButtonAddTask } from "../ButtonAddTask/ButtonAddTask";
 import { ModalGeral } from "../ModalGeral/ModalGeral";
 import { FormTags } from "../FormTags/FormTags";
+import avatar from '../../assets/avatar-padrao.png'
 
 export function MenuSiderBar() {
     const [open, setOpen] = useState(false);
@@ -26,16 +27,16 @@ export function MenuSiderBar() {
             <Dialog
                 open={open}
                 onClose={closeSideBar}
-                className="relative z-10"
+                className="relative z-50"
             >
                 <DialogBackdrop
                     transition
-                    className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity duration-500 ease-in-out"
+                    className="fixed inset-0 bg-gray-900/95 transition-opacity duration-500 ease-in-out"
                 />
 
                 <div className="fixed inset-0 overflow-hidden">
                     <div className="absolute inset-0 overflow-hidden">
-                        <div className="pointer-events-none fixed inset-y-0 left-0 flex max-w-full">
+                        <div className="pointer-events-none fixed inset-y-0 left-0 flex max-w-[70%]">
                             <DialogPanel
                                 transition
                                 className="pointer-events-auto relative w-screen max-w-md transform transition duration-500 ease-in-out data-[closed]:-translate-x-full sm:duration-700"
@@ -49,11 +50,11 @@ export function MenuSiderBar() {
                                     leaveTo="-translate-x-full opacity-0"
                                 >
                                     {/* Botão de Fechar SiderBar */}
-                                    <div className="absolute right-0 top-0 flex items-center -mr-12 pr-2 pt-4 sm:-mr-10 sm:pr-4">
+                                    <div className="absolute right-0 top-0 flex items-center m-2 sm:mr-6">
                                         <button
                                             type="button"
                                             onClick={closeSideBar}
-                                            className="relative rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                                            className="relative rounded-md text-white hover:bg-gray-500"
                                         >
                                             <span className="sr-only">Close panel</span>
                                             <XMarkIcon
@@ -63,20 +64,20 @@ export function MenuSiderBar() {
                                         </button>
                                     </div>
                                 </TransitionChild>
-                                <div className="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
-                                    <div className="px-4 sm:px-6">
-                                        <DialogTitle className="text-base font-semibold leading-6 text-gray-900">Panel title</DialogTitle>
-                                        <div className="flex items-center rounded-md p-1 mt-2 border border-gray-400">
+                                <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                                    <div className="px-4 sm:px-6 bg-gray-700 py-6">
+                                        <DialogTitle className="text-base font-semibold leading-6 text-white">Panel title</DialogTitle>
+                                        <div className="flex items-center rounded-md p-1 mt-2">
                                             {user && (
-                                                <div className="flex rounded-full w-9 h-9 border border-gray-400 bg-gray-200">
+                                                <div className="flex rounded-[100%] w-[50px]">
                                                     <img
-                                                        src={user.photoURL}
-                                                        className="flex rounded-full bg-blue-200"
-                                                        alt=""
+                                                        src={user.photoURL ? user?.photoURL : avatar}
+                                                        className="flex rounded-full"
+                                                        alt="avatar"
                                                     />
                                                 </div>
                                             )}
-                                            {user && <span className="flex w-full p-2">{user.displayName}</span>}
+                                            {user && <span className="flex w-full p-2 text-sm text-white">{user.displayName && "Olá, " + user.displayName }</span>}
                                         </div>
                                     </div>
                                     <div className="relative mt-6 flex-1 px-4 sm:px-6">

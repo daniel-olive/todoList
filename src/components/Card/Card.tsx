@@ -299,6 +299,7 @@ export const Card = () => {
                 ColorBackground="bg-gray-900"
                 windowSize={`${"min-h-screen"}`}
             >
+                {/* Cadastrar tarefas, add task */}
                 <ButtonAddTask
                     bgColor="bg-white"
                     textColor="text-black"
@@ -360,7 +361,7 @@ export const Card = () => {
                         {list.map((item: Itens) => (
                             <div key={item.id}>
                                 {editItemId !== item.id && (
-                                    <div className={`flex h-14 hover:bg-gray-800 justify-between items-center rounded-md mb-2 cursor-pointer animate__animated animate__fadeIn ${item.checked ? "bg-green-300 border-2 border-green-800" : "border border-gray-300"}`}>
+                                    <div className={`flex h-14 text-black justify-between items-center rounded-md mb-2 cursor-pointer animate__animated animate__fadeIn ${item.checked ? "bg-green-300 hover:bg-opacity-85 border-2 border-green-800" : "bg-white hover:bg-opacity-85 border border-gray-300"}`}>
                                         <input
                                             id={`task-${item.id}`}
                                             type="checkbox"
