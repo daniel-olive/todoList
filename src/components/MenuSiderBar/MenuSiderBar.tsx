@@ -1,17 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, TransitionChild } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../../Contexts/useAuth";
 import { ButtonAddTask } from "../ButtonAddTask/ButtonAddTask";
 import { ModalGeral } from "../ModalGeral/ModalGeral";
 import { FormTags } from "../FormTags/FormTags";
-import avatar from '../../assets/avatar-padrao.png'
+import avatar from "../../assets/avatar-padrao.png";
+import { addDoc, collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { db } from "../../Firebase";
 
-export function MenuSiderBar() {
+type Props = {
+    onTagClick: any;
+};
+
+export function MenuSiderBar({ onTagClick }: Props) {
     const [open, setOpen] = useState(false);
     const [showModalAdd, setShowModalAdd] = useState(false);
+    const [tagName, setTagName] = useState("");
+    const [menu, setMenu] = useState<any>([]);
     const { user } = useAuth();
-    const menu = [{ nome: "Hoje" }, { nome: "Trabalho" }, { nome: "Pessoal" }, { nome: "Compras" }, { nome: "Estudos" }];
+    // const menu = [{ nome: "Hoje" }, { nome: "Trabalho" }, { nome: "Pessoal" }, { nome: "Compras" }, { nome: "Estudos" }];
 
     const closeModal = () => {
         setShowModalAdd(false);
@@ -21,6 +29,42 @@ export function MenuSiderBar() {
         setOpen(false);
         setShowModalAdd(false);
     };
+
+
+    // Função para criar uma nova tag
+    const handleCreateTag = async () => {
+        setShowModalAdd(true)
+      if (tagName.trim()) {
+        try {
+          const docRef = await addDoc(collection(db, 'tags'), {
+            name: tagName,
+          });
+          // Quando a tag é criada, podemos passar o ID dela para outros componentes
+          console.log('Tag criada com ID:', docRef.id);
+          setTagName('');
+          onTagClick(docRef.id); // Passa o ID da tag criada para o componente pai
+        } catch (e) {
+          console.error('Erro ao adicionar tag: ', e);
+        }
+      }
+    };
+
+  // Função para buscar todas as tags do Firestore
+  const fetchTags = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'tags'));
+      const tagsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setMenu(tagsList);
+    } catch (e) {
+      console.error('Erro ao buscar tags: ', e);
+    }
+  };
+
+  // Buscar as tags quando o componente for montado
+  useEffect(() => {
+    fetchTags();
+  }, []);
+
 
     return (
         <>
@@ -77,16 +121,21 @@ export function MenuSiderBar() {
                                                     />
                                                 </div>
                                             )}
-                                            {user && <span className="flex w-full p-2 text-sm text-white">{user.displayName && "Olá, " + user.displayName }</span>}
+                                            {user && <span className="flex w-full p-2 text-sm text-white">{user.displayName && "Olá, " + user.displayName}</span>}
                                         </div>
                                     </div>
                                     <div className="relative mt-6 flex-1 px-4 sm:px-6">
                                         {menu.map((item: any) => (
                                             <ul
-                                                key={item.nome}
+                                                key={item.id}
                                                 className="flex flex-col"
                                             >
-                                                <li className="p-2 cursor-pointer hover:bg-gray-200 rounded-md">{item.nome}</li>
+                                                <li
+                                                    onClick={() => onTagClick(menu.id)}
+                                                    className="p-2 cursor-pointer hover:bg-gray-200 rounded-md"
+                                                >
+                                                    {item.nome}
+                                                </li>
                                             </ul>
                                         ))}
                                     </div>
@@ -94,7 +143,7 @@ export function MenuSiderBar() {
                                     <ButtonAddTask
                                         bgColor="bg-black"
                                         textColor="text-white"
-                                        handleAddTesk={() => setShowModalAdd(true)}
+                                        handleAddTesk={handleCreateTag}
                                     />
                                     {showModalAdd && (
                                         <ModalGeral

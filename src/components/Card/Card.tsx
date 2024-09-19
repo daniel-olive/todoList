@@ -37,6 +37,7 @@ export const Card = () => {
     const [addTesk, setAddTesk] = useState(false);
     const [taskIdToDelete, setTaskIdToDelete] = useState<string | null>(null);
     const [handleDeleShowAlert, setHandleDeleShowAlert] = useState(false);
+    const [selectedTagId, setSelectedTagId] = useState(null);
 
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
@@ -55,6 +56,19 @@ export const Card = () => {
     const handleTagSelect = () => {
         setTagSelect(true);
     };
+
+    useEffect(() => {
+        const fetchDocuments = async () => {
+          if (selectedTagId) {
+            const q = query(collection(db, 'tags', selectedTagId));
+            const querySnapshot = await getDocs(q);
+            const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setList(docs);
+          }
+        };
+    
+        fetchDocuments();
+      }, [selectedTagId]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -291,10 +305,14 @@ export const Card = () => {
         setIsModalOpen(false);
     };
 
+    const handleTagClick = (tagId: any) => {
+        setSelectedTagId(tagId);
+    };
+
     return (
         <>
             {showConfetti ? <Confetti gravity={0.1} /> : ""}
-            <Header title="To Do List" />
+            <Header title="To Do List" onTagClick={handleTagClick} />
             <Container
                 ColorBackground="bg-gray-900"
                 windowSize={`${"min-h-screen"}`}
