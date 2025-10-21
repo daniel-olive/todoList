@@ -3,7 +3,7 @@ import { RoutesList } from "./utils/RoutesList";
 
 function App() {
     return (
-        <div className="flex flex-col bg-gray-900">
+        <div className="flex flex-col bg-gray-900 h-screen">
             <RoutesList />
         </div>
     );
